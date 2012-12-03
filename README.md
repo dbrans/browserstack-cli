@@ -3,6 +3,10 @@ browserstack-cli
 
 A command line interface for the browserstack api.
 
+## Installation
+
+```npm install -g browserstack-cli```
+
 ## Overview
 
 Get a list of available browsers:
