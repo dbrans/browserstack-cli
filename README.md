@@ -37,18 +37,11 @@ Kill all workers:
 ```browserstack kill all```
 
 
-Launch a browser and kill worker on \<CTRL-C\>
+### Attaching to a remote browser
+
+Using the ``--attach`` option keeps the command running. When the command receives a SIGTERM or a SIGINT (CTRL-C) signal, it kills the remote browser before exiting itself.
 
 ```browserstack launch --attach firefox:3.6 http://google.com```
-
-Outputs:
-
-```
-Launching firefox:3.6...
-Worker 514679 was created.
-^CKilling worker 514679
-Done.
-```
 
 ## Usage
 
