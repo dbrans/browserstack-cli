@@ -1,0 +1,29 @@
+{
+  "author": {
+    "name": "Derek Brans",
+    "email": "dbrans@gmail.com",
+    "website": "http://github.com/dbrans"
+  },
+  "name": "browserstack-cli",
+  "description": "A command line interface for the BrowserStack API.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/dbrans/browserstack-cli",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dbrans/browserstack-cli.git"
+  },
+  "engines": {
+    "node": ">=0.6.0"
+  },
+  "dependencies": {
+    "commander": "1.x",
+    "async": "0.1.x",
+    "browserstack": "0.1.x"
+  },
+  "devDependencies": {
+    "grunt": "0.3.x"
+  },
+  "bin": {
+    "browserstack": "bin/cli.js"
+  }
+}
