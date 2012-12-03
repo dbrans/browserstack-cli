@@ -95,7 +95,7 @@ function createClient(settings) {
 function 	createTunnel (key, host, port, ssl) {
 		var child_process = require('child_process');
 
-		var tunnel = child_process.spawn('java', ['-jar', __dirname + '/../bin/BrowserStackTunnel.jar', key, host+','+port+','+(ssl ? '1' : '0')]);
+		var tunnel = child_process.spawn('java', ['-jar', __dirname + '/BrowserStackTunnel.jar', key, host+','+port+','+(ssl ? '1' : '0')]);
 
 		tunnel.stdout.on('data', function(data){
 			console.log(""+data);
@@ -109,7 +109,7 @@ function 	createTunnel (key, host, port, ssl) {
 	}
 
 // ## CLI
-cmd.version('0.1.0')
+cmd.version('0.1.2')
 .option('-u, --user <user:password>', 'Browserstack authentication')
 .option('--os', 'The os of the browser or device. Defaults to win.')
 .option('-t, --timeout <seconds>', "Launch duration after which browsers exit")
@@ -119,7 +119,7 @@ cmd.version('0.1.0')
 
 // ### Command: launch
 cmd.command('launch <browser> <url>')
-.description('Launch remote browser:version at a url. e.g. browserstack firefox:3.6 http://google.com')
+.description('Launch remote browser:version at a url. e.g. browserstack launch firefox:3.6 http://google.com')
 .action(function(browserVer, url) {
 
 	var options = parseBrowser(browserVer);
