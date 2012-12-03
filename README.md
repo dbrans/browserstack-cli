@@ -39,4 +39,7 @@ You can configure your browserstack username, password, and tunnel key in the fi
 }
 ```
 
-**Note**: Use the tunneling key from [automated browser testing page](http://www.browserstack.com/automated-browser-testing-api) and not [this page](http://www.browserstack.com/local-testing#cmd-tunnel).
+## Your Browserstack Tunnel Key
+If you're doing automated testing, use the key from the [automated browser testing page](http://www.browserstack.com/automated-browser-testing-api).
+
+If you're launching browsers manually from the browserstack.com website, use the key from [this page](http://www.browserstack.com/local-testing#cmd-tunnel).
