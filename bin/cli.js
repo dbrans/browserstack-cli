@@ -109,7 +109,7 @@ function 	createTunnel (key, host, port, ssl) {
 	}
 
 // ## CLI
-cmd.version('0.1.2')
+cmd.version('0.1.3')
 .option('-u, --user <user:password>', 'Browserstack authentication')
 .option('--os', 'The os of the browser or device. Defaults to win.')
 .option('-t, --timeout <seconds>', "Launch duration after which browsers exit")
