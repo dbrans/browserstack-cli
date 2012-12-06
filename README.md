@@ -86,3 +86,7 @@ If you're doing automated testing, use the key from the [automated browser testi
 
 If you're launching browsers manually from the browserstack.com website, use the key from [this page](http://www.browserstack.com/local-testing#cmd-tunnel).
 
+## CHANGES
+
+0.2 Added browser-list caching, devices and intelligent defaults
+

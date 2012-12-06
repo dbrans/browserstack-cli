@@ -5,9 +5,62 @@ var fs = require('fs');
 var path = require('path');
 var cmd = require('commander');
 var async = require('async');
+var log = require('winston');
 
-// Indefinite timeout. We use one day because browserstack cleans up their browsers once a day.
-var FOREVER = 60 * 60 * 24;
+
+
+// ## Command Line Interface
+cmd.version('0.2')
+.option('-u, --user <user:password>', 'Browserstack authentication')
+.option('--os', 'The os of the browser or device. Defaults to win.')
+.option('-t, --timeout <seconds>', "Launch duration after which browsers exit.")
+.option('--attach', "Attach process to remote browser.")
+.option('-k, --key', "Tunneling key.")
+.option('--ssl', "ssl flag for tunnel.")
+.option('--debug', "Debug mode. More verbose output.");
+
+// ### Command: launch
+cmd.command('launch <browser> <url>')
+.description('Launch remote browser:version at a url. e.g. browserstack launch firefox:3.6 http://google.com')
+.action(setAction(launchAction));
+
+// ### Command: kill
+cmd.command('kill <id>')
+.description('Kill a running browser. An id of "all" will kill all running browsers')
+.action(setAction(killAction));
+
+// ### Command: list
+cmd.command('list')
+.description('List running browsers')
+.action(setAction(listAction));
+
+// ### Command: browsers
+cmd.command('browsers')
+.description('List available browsers and versions')
+.action(setAction(browsersAction));
+
+cmd.command('tunnel <host:port>')
+.description('Create a browserstack tunnel')
+.action(setAction(tunnelAction));
+
+cmd.command('*')
+.action(function(unknown) {
+  exitIfError({message: "Unknown command '"+unknown+"'."});
+});
+
+cmd.parse(process.argv);
+
+// Show help if no arguments were passed.
+if(!cmd.args.length) {
+  cmd.outputHelp();
+}
+
+// Init log.
+if(!cmd.debug) {
+  log.remove(log.transports.Console);
+}
+
+
 
 // ## Helpers
 function extend( a, b ) {
@@ -57,15 +110,78 @@ function killBrowser(bs, id) {
   });
 }
 
+
 // ## Config File
 // Located at ``~/.browserstack.json``
-var config = {};
-var CONFIG_FILE = path.join(process.env.HOME, "/.browserstack.json");
-// Try load a config file from user's home directory
-try {
-  config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-} catch(e) {}
+var config = (function() {
+  var CONFIG_FILE = path.join(process.env.HOME, ".browserstack.json");
+  // Try load a config file from user's home directory
+  try {
+    return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+  } catch(e) {
+    return {};
+  }
+}());
 
+
+
+// ## Cache browsers in a local file
+// From bruce's node-temp
+
+var cache;
+(function() {
+  var defaultDirectory = '/tmp';
+  var environmentVariables = ['TMPDIR', 'TMP', 'TEMP'];
+  var TTL = 1000 * 60 * 60 * 24; // 1 day
+  if(action === browsersAction) {
+    TTL = 0;
+  }
+
+  var getTempDirPath = function() {
+    for(var i = 0; i < environmentVariables.length; i++) {
+      var value = process.env[environmentVariables[i]];
+      if(value)
+        return fs.realpathSync(value);
+    }
+    return fs.realpathSync(defaultDirectory);
+  }
+
+  var tempDir = getTempDirPath();
+  var cachePath = path.join(tempDir, "browserstack_cache.json");
+  log.info('cache path: ' + cachePath);
+  // Check if we have a local browsers cache
+  if(fs.existsSync(cachePath)) {
+    var stat = fs.statSync(cachePath);
+    if(stat.mtime > new Date - TTL) {
+      try {
+        cache = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+        log.info('Cachefile exists and loaded ' + cache.length + ' browsers.');
+      }
+      catch(e) {
+        log.error('Cachefile exists but could not be parsed.');
+      }
+    } else {
+      log.info('Cachefile exists but has expired.');
+    }
+  }
+
+  if(!cache) {
+    log.info('Fetching cache.');
+    createClient().getBrowsers(function(err, result) {
+      exitIfError(err);
+      cache = result;
+      log.info('Cachefile fetched ' + cache.length + ' browsers.');
+      fs.writeFileSync(cachePath, JSON.stringify(cache))
+      runAction();
+    });
+  } else {
+    setTimeout(runAction);
+  }
+}());
+
+
+
+// ## Actions
 // Create a browserstack client.
 function createClient(settings) {
   settings = settings || {};
@@ -91,36 +207,11 @@ function createClient(settings) {
   return browserstack.createClient(extend(settings, auth));
 }
 
-// Create a browserstack tunnel.
-function   createTunnel (key, host, port, ssl) {
-    var child_process = require('child_process');
 
-    var tunnel = child_process.spawn('java', ['-jar', __dirname + '/BrowserStackTunnel.jar', key, host+','+port+','+(ssl ? '1' : '0')]);
+function launchAction(browserVer, url) {
 
-    tunnel.stdout.on('data', function(data){
-      console.log(""+data);
-    });
-
-    tunnel.stderr.on('data', function(data) {
-      console.log('err: ' + data);
-    });
-
-    return tunnel;
-  }
-
-// ## CLI
-cmd.version('0.1.3')
-.option('-u, --user <user:password>', 'Browserstack authentication')
-.option('--os', 'The os of the browser or device. Defaults to win.')
-.option('-t, --timeout <seconds>', "Launch duration after which browsers exit")
-.option('--attach', "Attach process to remote browser.")
-.option('-k, --key', "Tunnling key.")
-.option('--ssl', "ssl flag for tunnel.");
-
-// ### Command: launch
-cmd.command('launch <browser> <url>')
-.description('Launch remote browser:version at a url. e.g. browserstack launch firefox:3.6 http://google.com')
-.action(function(browserVer, url) {
+  // Indefinite timeout. We use one day because browserstack cleans up their browsers once a day.
+  var FOREVER = 60 * 60 * 24;
 
   var options = parseBrowser(browserVer);
   options.url = url;
@@ -142,12 +233,48 @@ cmd.command('launch <browser> <url>')
       });
     }
   });
-});
+}
 
-// ### Command: kill
-cmd.command('kill <id>')
-.description('Kill a running browser. An id of "all" will kill all running browsers')
-.action(function(id) {
+// Create a browserstack tunnel.
+function createTunnel (key, host, port, ssl) {
+  var child_process = require('child_process');
+
+  var tunnel = child_process.spawn('java', ['-jar', __dirname + '/BrowserStackTunnel.jar', key, host+','+port+','+(ssl ? '1' : '0')]);
+
+  tunnel.stdout.on('data', function(data){
+    console.log(""+data);
+  });
+
+  tunnel.stderr.on('data', function(data) {
+    console.log('err: ' + data);
+  });
+
+  return tunnel;
+}
+
+function tunnelAction(hostPort) {
+  var host = parsePair(hostPort, 'name', ':', 'port');
+  var key = cmd.key || config.key;
+  if(!key) {
+    console.error('Browserstack tunnel key required. Use option "--key" or put a "key" in ' + CONFIG_FILE);
+    process.exit(1);
+  }
+  var tunnel = createTunnel(key, host.name, host.port, cmd.ssl);
+
+  tunnel.on('exit', function() {
+    process.exit(1);
+  });
+
+  attach(function() {
+    tunnel.kill('SIGTERM');
+  });
+}
+
+function browsersAction() {
+  console.log(cache);
+}
+
+function killAction(id) {
   var bs = createClient();
   if (id !== "all") {
     killBrowser(bs, id);
@@ -165,59 +292,30 @@ cmd.command('kill <id>')
       });
     });
   }
-});
+}
 
-// ### Command: list
-cmd.command('list')
-.description('List running browsers')
-.action(function() {
+function listAction() {
   createClient().getWorkers(function(err, result) {
     exitIfError(err);
     console.log(result);
   });
-});
-
-// ### Command: browsers
-cmd.command('browsers')
-.description('List available browsers and versions')
-.action(function() {
-  createClient().getBrowsers(function(err, result) {
-    exitIfError(err);
-    console.log(result);
-  });
-});
-
-cmd.command('tunnel <host:port>')
-.description('Create a browserstack tunnel')
-.action(function(hostPort) {
-  var host = parsePair(hostPort, 'name', ':', 'port');
-  var key = cmd.key || config.key;
-  if(!key) {
-    console.error('Browserstack tunnel key required. Use option "--key" or put a "key" in ' + CONFIG_FILE);
-    process.exit(1);
-  }
-  var tunnel = createTunnel(key, host.name, host.port, cmd.ssl);
-
-  tunnel.on('exit', function() {
-    process.exit(1);
-  });
-
-  attach(function() {
-    tunnel.kill('SIGTERM');
-  });
-});
-
-cmd.command('*')
-.action(function(unknown) {
-  exitIfError({message: "Unknown command '"+unknown+"'."});
-});
-
-cmd.parse(process.argv);
-
-// Show help if no arguments were passed.
-if(!cmd.args.length) {
-  cmd.outputHelp();
 }
+
+
+var action;
+var actionArgs;
+
+function setAction(f) {
+  return function() {
+    action = f;
+    actionArgs = arguments;
+  }
+}
+
+function runAction() {
+  action.apply(null, actionArgs);
+}
+
 
 
 // ## Termination
