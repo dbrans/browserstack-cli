@@ -405,7 +405,7 @@ function killAction(id) {
     bs.getWorkers(function(err, workers) {
       console.log('Killing all');
       exitIfError(err);
-      var ids = workers.map(function(w) {return w.id}).join(', ');
+      var ids = workers.map(function(w) {return w.id});
       killWorkers(bs, ids);
     });
   }
