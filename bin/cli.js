@@ -6,11 +6,11 @@ var path = require('path');
 var cmd = require('commander');
 var async = require('async');
 var log = require('winston');
-
+var version = '0.2';
 
 
 // ## Command Line Interface
-cmd.version('0.2')
+cmd.version(version)
 .option('-u, --user <user:password>', 'Browserstack authentication')
 .option('--os', 'The os of the browser or device. Defaults to win.')
 .option('-t, --timeout <seconds>', "Launch duration after which browsers exit.")
@@ -87,7 +87,7 @@ function parsePair(str, key1, separator, key2) {
 // {browser: "firefox", version: "3.6"}
 // ```
 function parseBrowser(str) {
-  return parsePair(str, "browser", ":", "version");
+  return parsePair(str, "name", ":", "version");
 }
 
 // Parse username:password into {username, password}.
@@ -155,7 +155,12 @@ var cache;
     if(stat.mtime > new Date - TTL) {
       try {
         cache = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
-        log.info('Cachefile exists and loaded ' + cache.length + ' browsers.');
+        if(cache.version !== version) {
+          log.info('Cachefile exists and loaded but old version: ' + cache.version);
+          cache = null;
+        } else {
+          log.info('Cachefile exists and loaded version ' + cache.version);
+        }
       }
       catch(e) {
         log.error('Cachefile exists but could not be parsed.');
@@ -165,12 +170,83 @@ var cache;
     }
   }
 
+  function compareVersions(v1, v2) {
+    var v1 = v1.split('.').map(parseInt);
+    var v2 = v2.split('.').map(parseInt);
+
+    var result = 0;
+
+    v1.some(function(p1, i) {
+      var p2 = v2[i] || 0;
+      if(p1 !== p2) {
+        // We have an answer.
+        // Returning non-zero triggers end of "some" iteration.
+        return result = (p1 < p2 ? -1 : 1);
+      }
+    });
+    return result ||
+      // result is 0. One final check: perhaps v2 is longer and therefore greater.
+      (v1.length < v2.length ? -1 : 0);
+  }
+
+  var equal = require('assert').equal;
+
+  equal(compareVersions("15.0", "4.0"), 1);
+
+  equal(compareVersions("4.0", "15.0"), -1);
+
+  equal(compareVersions("4", "4.2"), -1);
+
+  equal(compareVersions("4.2", "4"), 1);
+
+
+  function processBrowsers(browsers) {
+    var data = {};
+
+    // Group browser versions by os
+    browsers.forEach(function(b){
+      var name = b.browser || b.device;
+      var entry = data[name] = data[name] || {
+        type: b.device ? 'device' : 'browser',
+        os: {}
+      }
+      var os = entry.os[b.os] = entry.os[b.os] || [];
+      os.push(b.version);
+    });
+
+    // Sort versions and get latest info
+    for(var name in data) {
+      var latest = data[name].latest = { version: "0", os: [] };
+      for(var osName in data[name].os) {
+        var versions = data[name].os[osName];
+        versions.sort(compareVersions);
+
+        // Update latest version and os's
+        var osLatest = versions[versions.length -1];
+        var comp = compareVersions(osLatest, latest.version);
+        if(!comp) {
+          // Version is equal to latest. Add this os.
+          latest.os.push(osName);
+        } else if( comp > 0 ) {
+          // osLatest > latest.
+          latest.version = osLatest;
+          latest.os = [osName];
+        }
+      }
+    }
+    return data;
+  }
+
   if(!cache) {
-    log.info('Fetching cache.');
-    createClient().getBrowsers(function(err, result) {
+    log.info('Fetching browsers.');
+    createClient().getBrowsers(function(err, browsers) {
       exitIfError(err);
-      cache = result;
-      log.info('Cachefile fetched ' + cache.length + ' browsers.');
+
+      log.info('Fetched ' + browsers.length + ' browsers.');
+      cache = {
+        version: version,
+        browsers: processBrowsers(browsers)
+      };
       fs.writeFileSync(cachePath, JSON.stringify(cache))
       runAction();
     });
@@ -178,6 +254,46 @@ var cache;
     setTimeout(runAction);
   }
 }());
+
+function intelligentDefaults(options) {
+  var b = cache.browsers[options.name];
+
+  // browser or device?
+  options[b.type] = options.name;
+
+  if(cmd.os) {
+    options.os = cmd.os;
+  }
+
+  if(!options.version) {
+    // Use latest version
+    if (options.os) {
+      // Use latest for this os
+      var versions = b.os[options.os];
+      options.version = versions[versions.length -1];
+    } else {
+      options.version = b.latest.version;
+      options.os = b.latest.os[0];
+    }
+  }
+
+  if(!options.os) {
+    // Use os with this version
+    for(var osName in b.os) {
+      if(~b.os[osName].indexOf(options.version)) {
+        options.os = osName;
+        break;
+      }
+    }
+    if(!options.os) {
+      exitIfError({message: "No OS found for browser " + options.name + ":" + options.version})
+    }
+  }
+
+  log.info('intelligentDefaults', options);
+
+  delete options.name;
+}
 
 
 
@@ -216,11 +332,14 @@ function launchAction(browserVer, url) {
   var options = parseBrowser(browserVer);
   options.url = url;
   options.timeout = cmd.timeout == "0" || cmd.attach ? FOREVER : cmd.timeout || 30;
-  options.os = cmd.os || 'win';
+
+  log.info('options:', options);
+
+  intelligentDefaults(options);
 
   var bs = createClient();
 
-  console.log('Launching ' + browserVer + '...');
+  console.log('Launching:\n', options, '...');
 
   bs.createWorker(options, function(err, worker) {
     exitIfError(err);
@@ -271,6 +390,11 @@ function tunnelAction(hostPort) {
 }
 
 function browsersAction() {
+  for(var name in cache) {
+    console.log('')
+    var b = cache[name];
+
+  }
   console.log(cache);
 }
 
