@@ -101,11 +101,9 @@ function parseUser(str) {
   return parsePair(str, "username", ":", "password");
 }
 
-// Kill a running browser
-function killBrowser(bs, id) {
-  console.log('Killing worker ' + id);
-  bs.terminateWorker(id, function(err, results) {
-    exitIfError(err);
+function killWorkers(bs, ids) {
+  console.log('Killing ' + ids.join(', '));
+  async.forEach(ids, bs.terminateWorker.bind(bs), function() {
     console.log('Done.');
   });
 }
@@ -348,7 +346,7 @@ function launchAction(browserVer, url) {
 
     if(cmd.attach) {
       attach(function() {
-        killBrowser(bs, worker.id);
+        killWorkers(bs, [worker.id]);
       });
     }
   });
@@ -401,19 +399,14 @@ function browsersAction() {
 function killAction(id) {
   var bs = createClient();
   if (id !== "all") {
-    killBrowser(bs, id);
+    killWorkers(bs, id.split(','));
 
   } else {
-    console.log('Killing all workers.');
     bs.getWorkers(function(err, workers) {
+      console.log('Killing all');
       exitIfError(err);
-
-      async.forEach(workers, function(worker, cb) {
-        bs.terminateWorker(worker.id, cb);
-
-      }, function() {
-        console.log('Done.');
-      });
+      var ids = workers.map(function(w) {return w.id}).join(', ');
+      killWorkers(bs, ids);
     });
   }
 }

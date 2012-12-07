@@ -24,6 +24,10 @@ Launching firefox:3.6...
 Worker 514664 was created.
 ```
 
+The command will use the latest version if none is specified. Launch latest firefox and point it to google.com:
+
+```browserstack launch firefox http://google.com```
+
 List all workers:
 
 ```browserstack list```
