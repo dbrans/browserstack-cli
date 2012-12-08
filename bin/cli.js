@@ -6,7 +6,7 @@ var path = require('path');
 var cmd = require('commander');
 var async = require('async');
 var log = require('winston');
-var version = '0.2.1';
+var version = '0.2.2';
 
 
 // ## Command Line Interface
@@ -101,8 +101,9 @@ function parseUser(str) {
   return parsePair(str, "username", ":", "password");
 }
 
-function killWorkers(bs, ids) {
-  console.log('Killing ' + ids.join(', '));
+function killWorkers(bs, ids, msg) {
+  msg = msg || "Killing";
+  console.log(msg + ' ' + ids.join(', '));
   async.forEach(ids, bs.terminateWorker.bind(bs), function() {
     console.log('Done.');
   });
@@ -397,16 +398,34 @@ function browsersAction() {
 }
 
 function killAction(id) {
+  // id is a number
+  var isNumber = (id == +id);
+
   var bs = createClient();
-  if (id !== "all") {
+  if(isNumber) {
+
     killWorkers(bs, id.split(','));
 
   } else {
     bs.getWorkers(function(err, workers) {
-      console.log('Killing all');
       exitIfError(err);
-      var ids = workers.map(function(w) {return w.id});
-      killWorkers(bs, ids);
+
+      var msg;
+      if (id === "all") {
+        msg = 'Killing all workers';
+      } else {
+        var workers = workers.filter(function(w) {
+          return (w.browser || w.device)+w.os.match(new RegExp(id, 'i'));
+        });
+        msg = 'Killing worker(s) matching ' + JSON.stringify(id);
+      }
+      if(!workers.length) {
+        console.log('No workers or none that match.');
+        return;
+      }
+      killWorkers(bs, workers.map(function(w) {
+        return w.id;
+      }), msg);
     });
   }
 }

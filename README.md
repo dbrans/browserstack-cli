@@ -92,6 +92,8 @@ If you're launching browsers manually from the browserstack.com website, use the
 
 ## CHANGES
 
+0.2.2 kill workers that match a string: kill iphone, kill android
+
 0.2.1 Kill multiple workers
 
 0.2.0 Added browser-list caching, devices and intelligent defaults
