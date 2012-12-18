@@ -69,7 +69,7 @@ Usage: browserstack [options] [command]
     --os                        The os of the browser or device. Defaults to win.
     -t, --timeout <seconds>     Launch duration after which browsers exit
     --attach                    Attach process to remote browser.
-    -k, --key                   Tunnling key.
+    -k, --key                   Tunneling key.
     --ssl                       ssl flag for tunnel.
 ```
 
