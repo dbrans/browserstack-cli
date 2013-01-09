@@ -91,7 +91,7 @@ If you're doing automated testing, use the key from the [automated browser testi
 If you're launching browsers manually from the browserstack.com website, use the key from [this page](http://www.browserstack.com/local-testing#cmd-tunnel).
 
 ## Issues, Questions?
-To ask a question or report an issue, please open a [github issue](https://github.com/dbrans/browserstack-cli/issues).
+To ask a question or report an issue, please open a [github issue](https://github.com/dbrans/browserstack-cli/issues/new).
 
 ## CHANGES
 
