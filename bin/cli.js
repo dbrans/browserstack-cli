@@ -112,8 +112,9 @@ function killWorkers(bs, ids, msg) {
 
 // ## Config File
 // Located at ``~/.browserstack.json``
+var CONFIG_FILE = path.join(process.env.HOME, ".browserstack.json");
+
 var config = (function() {
-  var CONFIG_FILE = path.join(process.env.HOME, ".browserstack.json");
   // Try load a config file from user's home directory
   try {
     return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
