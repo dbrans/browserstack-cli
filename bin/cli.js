@@ -53,6 +53,7 @@ cmd.parse(process.argv);
 // Show help if no arguments were passed.
 if(!cmd.args.length) {
   cmd.outputHelp();
+  return;
 }
 
 // Init log.
