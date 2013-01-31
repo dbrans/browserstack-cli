@@ -3,6 +3,7 @@
 var browserstack = require('browserstack');
 var fs = require('fs');
 var path = require('path');
+var util = require('util');
 var cmd = require('commander');
 var async = require('async');
 var log = require('winston');
@@ -396,7 +397,7 @@ function browsersAction() {
     var b = cache[name];
 
   }
-  console.log(cache);
+  console.log(util.inspect(cache, false, null, false));
 }
 
 function killAction(id) {
