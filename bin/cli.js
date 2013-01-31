@@ -7,7 +7,7 @@ var util = require('util');
 var cmd = require('commander');
 var async = require('async');
 var log = require('winston');
-var version = '0.2.2';
+var version = '0.2.4';
 
 
 // ## Command Line Interface
