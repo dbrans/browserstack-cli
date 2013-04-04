@@ -95,6 +95,8 @@ To ask a question or report an issue, please open a [github issue](https://githu
 
 ## CHANGES
 
+0.2.5 Added missing BrowserStackTunnel.jar, fixed key parameter
+
 0.2.4 Print full output from 'browsers' command.
 
 0.2.3 Minor fixes: config_file and no-args.
