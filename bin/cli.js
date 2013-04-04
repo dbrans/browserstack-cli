@@ -16,7 +16,7 @@ cmd.version(version)
 .option('--os', 'The os of the browser or device. Defaults to win.')
 .option('-t, --timeout <seconds>', "Launch duration after which browsers exit.")
 .option('--attach', "Attach process to remote browser.")
-.option('-k, --key', "Tunneling key.")
+.option('-k, --key <key>', "Tunneling key.")
 .option('--ssl', "ssl flag for tunnel.")
 .option('--debug', "Debug mode. More verbose output.");
 
