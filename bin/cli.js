@@ -13,7 +13,7 @@ var version = '0.2.4';
 // ## Command Line Interface
 cmd.version(version)
 .option('-u, --user <user:password>', 'Browserstack authentication')
-.option('--os', 'The os of the browser or device. Defaults to win.')
+.option('--os <os>', 'The os of the browser or device. Defaults to win.')
 .option('-t, --timeout <seconds>', "Launch duration after which browsers exit.")
 .option('--attach', "Attach process to remote browser.")
 .option('-k, --key <key>', "Tunneling key.")

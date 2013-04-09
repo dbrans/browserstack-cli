@@ -22,7 +22,7 @@
     "winston": "0.3.x"
   },
   "devDependencies": {
-    "grunt": "0.x.x"
+    "grunt": "0.3.0"
   },
   "bin": {
     "browserstack": "bin/cli.js"
