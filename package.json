@@ -6,7 +6,7 @@
   },
   "name": "browserstack-cli",
   "description": "A command line interface for the BrowserStack API.",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "homepage": "https://github.com/dbrans/browserstack-cli",
   "repository": {
     "type": "git",
