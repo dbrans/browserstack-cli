@@ -14,7 +14,8 @@ var version = '0.3.0';
 // ## Command Line Interface
 cmd.version(version)
 .option('-u, --user <user:password>', 'Browserstack authentication')
-.option('--os <os>', 'The os of the browser or device. Defaults to Windows:7.')
+.option('--os <os>', 'The OS of the browser. Defaults to Windows:7.')
+.option('--device <device>', 'The device of the OS.')
 .option('-t, --timeout <seconds>', "Launch duration after which browsers exit.")
 .option('--attach', "Attach process to remote browser.")
 .option('-k, --key <key>', "Tunneling key.")
@@ -239,10 +240,6 @@ function intelligentDefaults(options) {
   } else {
     browser = browsers[0];
   }
-
-  // browser or device?
-  options[browser.type] = options.name;
-
 }
 
 // ## Actions
@@ -288,6 +285,10 @@ function launchAction(browserVer, url) {
     var os = parseOS(cmd.os);
     options.os = os.name;
     options.os_version = os.version;
+  }
+
+  if (cmd.device) {
+    options.device = cmd.device;
   }
 
   delete options.name;
