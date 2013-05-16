@@ -137,7 +137,7 @@ program
 function getStatus(){
   makeBS().status(exitIfErrorElse(function(status){
     for (var prop in status){
-      console.log(capitalize(prop.replace(/_/g, ' ')) + ': ' + status[prop])
+      console.log(display.capitalize(prop.replace(/_/g, ' ')) + ': ' + status[prop])
     }
   }))
 }
