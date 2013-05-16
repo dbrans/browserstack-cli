@@ -1,7 +1,7 @@
 browserstack-cli
 ================
 
-A command line interface for the browserstack api.
+Awesome command line interface for the browserstack api.
 
 ## Installation
 

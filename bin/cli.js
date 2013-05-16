@@ -15,7 +15,7 @@ program
   .option('-u, --user <user:password>', 'Browserstack authentication')
   .option('-a, --attach', "Attach process to launched browser")
   .option('-o, --os', 'The os of the browser or device. Defaults to "win"')
-  .option('-t, --timeout <seconds>', "Launch duration after which browsers exit")
+  .option('-t, --timeout <seconds>', "Launch duration after which browsers exit", 30)
   .option('-p, --private', "Use the private web tunneling key for manual testing")
   .option('-k, --key <key>', "Tunneling key")
 
@@ -48,8 +48,8 @@ function launchBrowser(browserSpec, url){
       device: browser.device,
       os: browser.os,
       os_version: browser.os_version,
-      browser_version: browser.browser_version
-      //timeout: program.timeout
+      browser_version: browser.browser_version,
+      timeout: program.timeout
     }
 
     client.launch(config, exitIfErrorElse(function(job){
