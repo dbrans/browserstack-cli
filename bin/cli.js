@@ -5,7 +5,6 @@ var BrowserStack = require('browseroverflow')
 var cli_util = require('../lib/cli_util')
 var exitIfErrorElse = cli_util.exitIfErrorElse
 var hangOnTillExit = cli_util.hangOnTillExit
-var selectBrowser = BrowserStack.selectBrowser
 
 var display = require('../lib/display')
 
@@ -37,7 +36,7 @@ program
 function launchBrowser(browserSpec, url){
   var client = makeBS()
   client.browsers(exitIfErrorElse(function(browsers){
-    var browser = selectBrowser(browsers, browserSpec)
+    var browser = client.selectBrowser(browsers, browserSpec)
     if (!browser){
       console.error('No matching browser found for "' + browserSpec + '"')
       return process.exit(1)
