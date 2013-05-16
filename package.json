@@ -17,12 +17,8 @@
   },
   "dependencies": {
     "commander": "1.x",
-    "async": "0.x.x",
-    "browserstack": "0.x.x",
-    "winston": "0.3.x"
-  },
-  "devDependencies": {
-    "grunt": "0.3.0"
+    "browseroverflow": "~0.0.2",
+    "cli-table": "~0.2.0"
   },
   "bin": {
     "browserstack": "bin/cli.js"
