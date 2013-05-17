@@ -83,6 +83,10 @@ or kill'em all
       -p, --private               Use the private web tunneling key for manual testing
       -k, --key <key>             Tunneling key
 
+## Programmatic API
+
+`browserstack-cli` is supported by a companion library [browseroverflow](https://github.com/airportyh/browseroverflow) which is essentially a one-to-one mapping of `browserstack-cli's` commands to API calls.
+
 ## Issues, Questions?
 
 To ask a question or report an issue, please open a [github issue](https://github.com/airportyh/browserstack-cli/issues/new).
