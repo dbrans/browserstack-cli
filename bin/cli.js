@@ -34,32 +34,20 @@ program
   .action(launchBrowser)
 
 function launchBrowser(browserSpec, url){
-  var client = makeBS()
-  client.browsers(exitIfErrorElse(function(browsers){
-    var browser = client.selectBrowser(browsers, browserSpec)
-    if (!browser){
-      console.error('No matching browser found for "' + browserSpec + '"')
-      return process.exit(1)
+  var browser = browserSpec.split(':')[0]
+  var version = browserSpec.split(':')[1]
+  makeBS().launch({
+    browser: browser,
+    browser_version: version,
+    url: url
+  }, exitIfErrorElse(function(job){
+    console.log('Launched job ' + job.id + '.')
+    if (program.attach){
+      console.log('Ctrl-C to kill job.')
+      hangOnTillExit(function(){
+        killJob(job.id)
+      })
     }
-    var config = {
-      url: url,
-      browser: browser.browser,
-      device: browser.device,
-      os: browser.os,
-      os_version: browser.os_version,
-      browser_version: browser.browser_version,
-      timeout: program.timeout
-    }
-
-    client.launch(config, exitIfErrorElse(function(job){
-      console.log('Launched job ' + job.id + '.')
-      if (program.attach){
-        console.log('Ctrl-C to kill job.')
-        hangOnTillExit(function(){
-          killJob(job.id)
-        })
-      }
-    }))
   }))
 }
 
