@@ -13,7 +13,7 @@
   ],
   "name": "browserstack-cli",
   "description": "A command line interface for the BrowserStack API.",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "homepage": "https://github.com/airportyh/browserstack-cli",
   "repository": {
     "type": "git",
