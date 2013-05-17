@@ -7,25 +7,27 @@ Awesome command line interface for the browserstack api.
 
     npm install -g browserstack-cli
 
-## Overview
+## Usage
+
+### Setup
 
 Setup your credentials and API key. This will prompt for your BrowserStack username/password and your tunneling API keys, which you can get from their [automated browser testing page](http://www.browserstack.com/automated-browser-testing-api) and [local testing page](http://www.browserstack.com/local-testing#cmd-tunnel).
 
     browserstack setup
 
+### Available Browsers
+
 Get a list of available browsers:
 
     browserstack browsers
+
+### Launch a Browser
 
 Launch firefox 3.6 and point it to google.com:
 
     browserstack launch firefox:3.6 http://google.com
 
-Output
-
-    Launched job 1059006.
-
-Launch will use the latest version if none is specified. Launch latest firefox and point it to google.com:
+Launch will use the latest version if none is specified:
 
     browserstack launch firefox http://google.com
 
@@ -33,19 +35,25 @@ Using the ``--attach`` option keeps the program running until it receives a SIGT
 
     browserstack launch --attach firefox http://google.com
 
-List all jobs
+Can you launch mobile browsers? Yes.
+
+    browserstack launch "iPhone 5" http://google.com
+
+### List Active Jobs
 
     browserstack jobs
 
-Kill a job:
+### Killing Jobs
+
+Kill a job by ID
 
     browserstack kill 514664
 
-Kill all jobs:
+or kill'em all
 
     browserstack killall
 
-tunnel `localhost:8080` to BrowserStack:
+### Tunneling
 
     browserstack tunnel localhost:8080
 
