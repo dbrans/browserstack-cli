@@ -11,7 +11,7 @@ Awesome command line interface for the browserstack api.
 
 ### Setup
 
-Setup your credentials and API key. This will prompt for your BrowserStack username/password and your tunneling API keys, which you can get from their [automated browser testing page](http://www.browserstack.com/automated-browser-testing-api) and [local testing page](http://www.browserstack.com/local-testing#cmd-tunnel).
+Setup your credentials and API key. This will prompt for your BrowserStack username/password and your tunneling API keys, which you can get from their [automated browser testing page](http://www.browserstack.com/automated-browser-testing-api) and [local testing page](http://www.browserstack.com/local-testing#cmd-tunnel) while you are logged in.
 
     browserstack setup
 
