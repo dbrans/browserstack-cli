@@ -1,3 +1,6 @@
+# This repo is deprecated
+The most up-to-date code for the [npm package](https://npmjs.org/package/browserstack-cli) lives at https://github.com/airportyh/browserstack-cli/
+
 browserstack-cli
 ================
 
