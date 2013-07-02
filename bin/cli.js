@@ -121,7 +121,19 @@ var config = (function() {
   try {
     return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
   } catch(e) {
-    return {};
+    return hasEnvConfig() ? envConfig() : {};
+  }
+
+  function hasEnvConfig() {
+    return process.env.BROWSERSTACK_KEY && process.env.BROWSERSTACK_USERNAME && process.env.BROWSERSTACK_PASSWORD;
+  }
+
+  function envConfig() {
+    return {
+      key: process.env.BROWSERSTACK_KEY,
+      username: process.env.BROWSERSTACK_USERNAME,
+      password: process.env.BROWSERSTACK_PASSWORD
+    };
   }
 }());
 
