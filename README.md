@@ -10,6 +10,19 @@ A command line interface for the browserstack api.
 
 ```npm install -g browserstack-cli```
 
+## Setup
+
+Run
+
+```browserstack setup```
+
+to create a ~/.browserstack directory and download the `browserstack.jar`, which is used to communicate with the browserstack api. You will be promted for your browserstack 
+
+* username
+* password
+* [private key](http://www.browserstack.com/local-testing#cmd-tunnel)
+* [api key](http://www.browserstack.com/automated-browser-testing-api)
+
 ## Overview
 
 Get a list of available browsers:
@@ -55,25 +68,27 @@ Using the ``--attach`` option keeps the command running. When the command receiv
 ```
 Usage: browserstack [options] [command]
 
-  Commands:
+Commands:
 
-    launch <browser> <url> Launch remote browser:version (e.g. firefox:3.6) at a url.
-    kill <id>              Kill a running browser. An id of "all" will kill all running browsers
-    list                   List running browsers
-    browsers               List available browsers and versions
-    tunnel <host:port>     Create a browserstack tunnel
-    *
+  setup                  Initial setup
+  launch <browser> <url> Launch a browser
+  browsers               List available browsers
+  jobs                   List active jobs
+  kill <job_id>          Kill an active job
+  killall                Kill all active jobs
+  tunnel <host:port>     Setup tunneling
+  status                 Get the current status
 
-  Options:
+Options:
 
-    -h, --help                  output usage information
-    -V, --version               output the version number
-    -u, --user <user:password>  Browserstack authentication
-    --os                        The os of the browser or device. Defaults to win.
-    -t, --timeout <seconds>     Launch duration after which browsers exit
-    --attach                    Attach process to remote browser.
-    -k, --key                   Tunneling key.
-    --ssl                       ssl flag for tunnel.
+  -h, --help                  output usage information
+  -V, --version               output the version number
+  -u, --user <user:password>  Browserstack authentication
+  -a, --attach                Attach process to launched browser
+  -o, --os                    The os of the browser or device. Defaults to "win"
+  -t, --timeout <seconds>     Launch duration after which browsers exit
+  -p, --private               Use the private web tunneling key for manual testing
+  -k, --key <key>             Tunneling key
 ```
 
 ## ```~/.browserstack.json```
@@ -82,16 +97,14 @@ You can configure your browserstack username, password, and tunnel key in the fi
 
 ```json
 {
-  "key": "XXXXXXXXXXXXXXXX",
   "username": "XXXXXXX",
-  "password": "XXXXXXX"
+  "password": "XXXXXXX",
+  "privateKey": "XXXXXXX",
+  "apiKey": "XXXXXXX"
 }
 ```
 
-## Your Browserstack Tunnel Key
-If you're doing automated testing, use the key from the [automated browser testing page](http://www.browserstack.com/automated-browser-testing-api).
-
-If you're launching browsers manually from the browserstack.com website, use the key from [this page](http://www.browserstack.com/local-testing#cmd-tunnel).
+Your private key should be listed at http://www.browserstack.com/local-testing#cmd-tunnel and your api key should be listed at http://www.browserstack.com/automated-browser-testing-api.
 
 ## Issues, Questions?
 To ask a question or report an issue, please open a [github issue](https://github.com/dbrans/browserstack-cli/issues/new).
