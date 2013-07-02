@@ -7,13 +7,15 @@ var util = require('util');
 var cmd = require('commander');
 var async = require('async');
 var log = require('winston');
-var version = '0.2.4';
+var _ = require('lodash');
+var version = '0.3.0';
 
 
 // ## Command Line Interface
 cmd.version(version)
 .option('-u, --user <user:password>', 'Browserstack authentication')
-.option('--os <os>', 'The os of the browser or device. Defaults to win.')
+.option('--os <os>', 'The OS of the browser. Defaults to Windows:7.')
+.option('--device <device>', 'The device of the OS.')
 .option('-t, --timeout <seconds>', "Launch duration after which browsers exit.")
 .option('--attach', "Attach process to remote browser.")
 .option('-k, --key <key>', "Tunneling key.")
@@ -89,6 +91,10 @@ function parsePair(str, key1, separator, key2) {
 // {browser: "firefox", version: "3.6"}
 // ```
 function parseBrowser(str) {
+  return parsePair(str, "name", ":", "version");
+}
+
+function parseOS(str) {
   return parsePair(str, "name", ":", "version");
 }
 
@@ -202,43 +208,6 @@ var cache;
   equal(compareVersions("4.2", "4"), 1);
 
 
-  function processBrowsers(browsers) {
-    var data = {};
-
-    // Group browser versions by os
-    browsers.forEach(function(b){
-      var name = b.browser || b.device;
-      var entry = data[name] = data[name] || {
-        type: b.device ? 'device' : 'browser',
-        os: {}
-      }
-      var os = entry.os[b.os] = entry.os[b.os] || [];
-      os.push(b.version);
-    });
-
-    // Sort versions and get latest info
-    for(var name in data) {
-      var latest = data[name].latest = { version: "0", os: [] };
-      for(var osName in data[name].os) {
-        var versions = data[name].os[osName];
-        versions.sort(compareVersions);
-
-        // Update latest version and os's
-        var osLatest = versions[versions.length -1];
-        var comp = compareVersions(osLatest, latest.version);
-        if(!comp) {
-          // Version is equal to latest. Add this os.
-          latest.os.push(osName);
-        } else if( comp > 0 ) {
-          // osLatest > latest.
-          latest.version = osLatest;
-          latest.os = [osName];
-        }
-      }
-    }
-    return data;
-  }
-
   if(!cache) {
     log.info('Fetching browsers.');
     createClient().getBrowsers(function(err, browsers) {
@@ -247,7 +216,7 @@ var cache;
       log.info('Fetched ' + browsers.length + ' browsers.');
       cache = {
         version: version,
-        browsers: processBrowsers(browsers)
+        browsers: browsers
       };
       fs.writeFileSync(cachePath, JSON.stringify(cache))
       runAction();
@@ -258,52 +227,26 @@ var cache;
 }());
 
 function intelligentDefaults(options) {
-  var b = cache.browsers[options.name];
+  var browsers = _.filter(cache.browsers, options);
+  var browser;
 
-  // browser or device?
-  options[b.type] = options.name;
-
-  if(cmd.os) {
-    options.os = cmd.os;
+  if (browsers.length == 0) {
+    exitIfError({message: "No browser found matching: " + JSON.stringify(options) });
+  } else if (browsers.length > 1) {
+    browser = _(browsers)
+      .sortBy('browser_version')
+      .first()
+      .valueOf();
+  } else {
+    browser = browsers[0];
   }
-
-  if(!options.version) {
-    // Use latest version
-    if (options.os) {
-      // Use latest for this os
-      var versions = b.os[options.os];
-      options.version = versions[versions.length -1];
-    } else {
-      options.version = b.latest.version;
-      options.os = b.latest.os[0];
-    }
-  }
-
-  if(!options.os) {
-    // Use os with this version
-    for(var osName in b.os) {
-      if(~b.os[osName].indexOf(options.version)) {
-        options.os = osName;
-        break;
-      }
-    }
-    if(!options.os) {
-      exitIfError({message: "No OS found for browser " + options.name + ":" + options.version})
-    }
-  }
-
-  log.info('intelligentDefaults', options);
-
-  delete options.name;
 }
-
-
 
 // ## Actions
 // Create a browserstack client.
 function createClient(settings) {
   settings = settings || {};
-  settings.version = settings.version || 2;
+  settings.version = settings.version || 3;
 
   // Get authentication data
   var auth;
@@ -331,13 +274,30 @@ function launchAction(browserVer, url) {
   // Indefinite timeout. We use one day because browserstack cleans up their browsers once a day.
   var FOREVER = 60 * 60 * 24;
 
-  var options = parseBrowser(browserVer);
-  options.url = url;
-  options.timeout = cmd.timeout == "0" || cmd.attach ? FOREVER : cmd.timeout || 30;
+  var options = {};
+  var browser = parseBrowser(browserVer);
+  options.browser = browser.name;
+  if (browser.version) {
+    options.browser_version = browser.version;
+  }
 
+  if(cmd.os) {
+    var os = parseOS(cmd.os);
+    options.os = os.name;
+    options.os_version = os.version;
+  }
+
+  if (cmd.device) {
+    options.device = cmd.device;
+  }
+
+  delete options.name;
   log.info('options:', options);
 
   intelligentDefaults(options);
+
+  options.url = url;
+  options.timeout = cmd.timeout == "0" || cmd.attach ? FOREVER : cmd.timeout || 30;
 
   var bs = createClient();
 

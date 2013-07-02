@@ -19,7 +19,8 @@
     "commander": "1.x",
     "async": "0.x.x",
     "browserstack": "0.x.x",
-    "winston": "0.3.x"
+    "winston": "0.3.x",
+    "lodash": "1.2.0"
   },
   "devDependencies": {
     "grunt": "0.3.0"
