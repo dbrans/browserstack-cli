@@ -1,6 +1,3 @@
-# This repo is deprecated
-The most up-to-date code for the [npm package](https://npmjs.org/package/browserstack-cli) lives at https://github.com/airportyh/browserstack-cli/
-
 browserstack-cli
 ================
 
@@ -61,7 +58,7 @@ or kill'em all
     browserstack tunnel localhost:8080
 
 ## Usage
-    
+
     Usage: cli.js [options] [command]
 
     Commands:
