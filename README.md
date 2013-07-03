@@ -4,110 +4,97 @@ The most up-to-date code for the [npm package](https://npmjs.org/package/browser
 browserstack-cli
 ================
 
-A command line interface for the browserstack api.
+Awesome command line interface for the browserstack api.
 
 ## Installation
 
-```npm install -g browserstack-cli```
-
-## Overview
-
-Get a list of available browsers:
-
-```browserstack browsers```
-
-Launch firefox 3.6 and point it to google.com:
-
-```browserstack launch firefox:3.6 http://google.com```
-
-Outputs:
-
-```
-Launching firefox:3.6...
-Worker 514664 was created.
-```
-
-The command will use the latest version if none is specified. Launch latest firefox and point it to google.com:
-
-```browserstack launch firefox http://google.com```
-
-List all workers:
-
-```browserstack list```
-
-Kill a worker:
-
-```browserstack kill 514664```
-
-Kill all workers:
-
-```browserstack kill all```
-
-
-### Attaching to a remote browser
-
-Using the ``--attach`` option keeps the command running. When the command receives a SIGTERM or a SIGINT (CTRL-C) signal, it kills the remote browser before exiting itself.
-
-```browserstack launch --attach firefox:3.6 http://google.com```
+    npm install -g browserstack-cli
 
 ## Usage
 
-```
-Usage: browserstack [options] [command]
+### Setup
 
-  Commands:
+Setup your credentials and API key. This will prompt for your BrowserStack username/password and your tunneling API keys, which you can get from their [automated browser testing page](http://www.browserstack.com/automated-browser-testing-api) and [local testing page](http://www.browserstack.com/local-testing#cmd-tunnel) while you are logged in.
 
-    launch <browser> <url> Launch remote browser:version (e.g. firefox:3.6) at a url.
-    kill <id>              Kill a running browser. An id of "all" will kill all running browsers
-    list                   List running browsers
-    browsers               List available browsers and versions
-    tunnel <host:port>     Create a browserstack tunnel
-    *
+    browserstack setup
 
-  Options:
+### Available Browsers
 
-    -h, --help                  output usage information
-    -V, --version               output the version number
-    -u, --user <user:password>  Browserstack authentication
-    --os                        The os of the browser or device. Defaults to win.
-    -t, --timeout <seconds>     Launch duration after which browsers exit
-    --attach                    Attach process to remote browser.
-    -k, --key                   Tunneling key.
-    --ssl                       ssl flag for tunnel.
-```
+Get a list of available browsers:
 
-## ```~/.browserstack.json```
+    browserstack browsers
 
-You can configure your browserstack username, password, and tunnel key in the file ```~/.browserstack.json``` like this:
+### Launch a Browser
 
-```json
-{
-  "key": "XXXXXXXXXXXXXXXX",
-  "username": "XXXXXXX",
-  "password": "XXXXXXX"
-}
-```
+Launch firefox 3.6 and point it to google.com:
 
-## Your Browserstack Tunnel Key
-If you're doing automated testing, use the key from the [automated browser testing page](http://www.browserstack.com/automated-browser-testing-api).
+    browserstack launch firefox:3.6 http://google.com
 
-If you're launching browsers manually from the browserstack.com website, use the key from [this page](http://www.browserstack.com/local-testing#cmd-tunnel).
+Launch will use the latest version if none is specified:
+
+    browserstack launch firefox http://google.com
+
+Using the ``--attach`` option keeps the program running until it receives a SIGTERM or a SIGINT (CTRL-C) signal, at which point it kills the remote browser and then exits.
+
+    browserstack launch --attach firefox http://google.com
+
+Can you launch mobile browsers? Yes.
+
+    browserstack launch "iPhone 5" http://google.com
+
+### List Active Jobs
+
+    browserstack jobs
+
+### Killing Jobs
+
+Kill a job by ID
+
+    browserstack kill 514664
+
+or kill'em all
+
+    browserstack killall
+
+### Tunneling
+
+    browserstack tunnel localhost:8080
+
+## Usage
+    
+    Usage: cli.js [options] [command]
+
+    Commands:
+
+      setup                  Initial setup
+      launch <browser> <url> Launch a browser
+      browsers               List available browsers
+      jobs                   List active jobs
+      kill <job_id>          Kill an active job
+      killall                Kill all active jobs
+      tunnel <host:port>     Setup tunneling
+      status                 Get the current status
+
+    Options:
+
+      -h, --help                  output usage information
+      -V, --version               output the version number
+      -u, --user <user:password>  Browserstack authentication
+      -a, --attach                Attach process to launched browser
+      -o, --os                    The os of the browser or device. Defaults to "win"
+      -t, --timeout <seconds>     Launch duration after which browsers exit
+      -p, --private               Use the private web tunneling key for manual testing
+      -k, --key <key>             Tunneling key
+
+## Programmatic API
+
+`browserstack-cli` is supported by a companion library [browseroverflow](https://github.com/airportyh/browseroverflow) which is essentially a one-to-one mapping of `browserstack-cli's` commands to API calls.
 
 ## Issues, Questions?
-To ask a question or report an issue, please open a [github issue](https://github.com/dbrans/browserstack-cli/issues/new).
 
-## CHANGES
-0.2.6 Fixed --os parameter. Freeze grunt version.
+To ask a question or report an issue, please open a [github issue](https://github.com/airportyh/browserstack-cli/issues/new).
 
-0.2.5 Added missing BrowserStackTunnel.jar, fixed key parameter
+## Contributors
 
-0.2.4 Print full output from 'browsers' command.
-
-0.2.3 Minor fixes: config_file and no-args.
-
-0.2.2 kill workers that match a string: kill iphone, kill android
-
-0.2.1 Kill multiple workers
-
-0.2.0 Added browser-list caching, devices and intelligent defaults
-
+* [Derek Brans](http://github.com/dbrans)
+* [Toby Ho](http://github.com/airportyh)

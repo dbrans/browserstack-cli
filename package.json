@@ -1,28 +1,31 @@
 {
-  "author": {
-    "name": "Derek Brans",
-    "email": "dbrans@gmail.com",
-    "website": "http://github.com/dbrans"
-  },
+  "contributors": [
+    {
+      "name": "Derek Brans",
+      "email": "dbrans@gmail.com",
+      "website": "http://github.com/dbrans"
+    },
+    {
+      "name": "Toby Ho",
+      "email": "airportyh@gmail.com",
+      "website": "http://github.com/airportyh"
+    }
+  ],
   "name": "browserstack-cli",
   "description": "A command line interface for the BrowserStack API.",
-  "version": "0.2.6",
-  "homepage": "https://github.com/dbrans/browserstack-cli",
+  "version": "0.2.10",
+  "homepage": "https://github.com/airportyh/browserstack-cli",
   "repository": {
     "type": "git",
-    "url": "git://github.com/dbrans/browserstack-cli.git"
+    "url": "git://github.com/airportyh/browserstack-cli.git"
   },
   "engines": {
     "node": ">=0.6.0"
   },
   "dependencies": {
     "commander": "1.x",
-    "async": "0.x.x",
-    "browserstack": "0.x.x",
-    "winston": "0.3.x"
-  },
-  "devDependencies": {
-    "grunt": "0.3.0"
+    "browseroverflow": "~0.0.6",
+    "cli-table": "~0.2.0"
   },
   "bin": {
     "browserstack": "bin/cli.js"
