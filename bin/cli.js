@@ -107,15 +107,17 @@ program
   .action(makeATunnel)
 
 function makeATunnel(hostAndPort){
-  makeBS().tunnel({
+  var tunnel = makeBS().tunnel({
     hostAndPort: hostAndPort,
     key: program.key,
     usePrivateKey: program['private'],
     timeout: program.timeout * 1000
   }, exitIfErrorElse(function(){
     console.log('Tunnel is running.')
-    process.stdin.resume()
   }))
+  hangOnTillExit(function(){
+    tunnel.stop()
+  })
 }
 
 program
