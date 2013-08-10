@@ -102,6 +102,7 @@ function killAllJobs(){
 
 program
   .command('tunnel <host:port>')
+  .option('-t, --timeout <seconds>', "Timeout for establishing the tunnel")
   .description('Setup tunneling')
   .action(makeATunnel)
 
@@ -109,7 +110,8 @@ function makeATunnel(hostAndPort){
   makeBS().tunnel({
     hostAndPort: hostAndPort,
     key: program.key,
-    usePrivateKey: program['private']
+    usePrivateKey: program['private'],
+    timeout: program.timeout * 1000
   }, exitIfErrorElse(function(){
     console.log('Tunnel is running.')
     process.stdin.resume()
