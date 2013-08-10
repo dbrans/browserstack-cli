@@ -3,6 +3,8 @@ browserstack-cli
 
 Awesome command line interface for the browserstack api.
 
+Please submit pull requests to https://github.com/airportyh/browserstack-cli/
+
 ## Installation
 
     npm install -g browserstack-cli
