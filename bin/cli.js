@@ -13,7 +13,7 @@ program.version(require(__dirname + '/../package').version)
 program
   .option('-u, --user <user:password>', 'Browserstack authentication')
   .option('-a, --attach', "Attach process to launched browser")
-  .option('-o, --os', 'The os of the browser or device. Defaults to "win"')
+  .option('-o, --os <name:version>', 'The OS of the browser or device.')
   .option('-t, --timeout <seconds>', "Launch duration after which browsers exit", 30)
   .option('-p, --private', "Use the private web tunneling key for manual testing")
   .option('-k, --key <key>', "Tunneling key")
@@ -36,9 +36,18 @@ program
 function launchBrowser(browserSpec, url){
   var browser = browserSpec.split(':')[0]
   var version = browserSpec.split(':')[1]
+  var os_name
+  var os_version
+  if (program.os){
+    var parts = program.os.split(':')
+    os_name = parts[0]
+    os_version = parts[1]
+  }
   makeBS().launch({
     browser: browser,
     browser_version: version,
+    os: os_name,
+    os_version: os_version,
     url: url
   }, exitIfErrorElse(function(job){
     console.log('Launched job ' + job.id + '.')
